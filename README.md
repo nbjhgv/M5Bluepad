@@ -2,21 +2,23 @@
 M5Bluepad library features extension classes for easier use of [Bluepad32](https://github.com/ricardoquesada/bluepad32) with [M5Stack](https://m5stack.com/) units.
 
 # Bluetooth remote control for M5Stack Atom-Lite and Atomic Motion Base
-**M5Stack Atomic Motion Base** is kind of Arduino shield for controlling servo motors. It's designed to be used with Atom series controllers from M5 Stack.
+[**M5Stack Atomic Motion Base**](https://docs.m5stack.com/en/atom/Atomic_Motion_Base_v1.2) is kind of Arduino shield for controlling servo motors. It's designed to be used with Atom series controllers from M5Stack.
 
-**Atom-Lite** is based on ESP32 and has Classic Bluetooth support so it can establish wireless connection with most modern gamepads, including XBox Wireless Controller and Sony DualShock/DualSense. 
+[**M5Stack Atom-Lite**](https://docs.m5stack.com/en/core/ATOM%20Lite) is based on ESP32 with Bluetooth Classic support so it can establish wireless connection to most modern gamepads, including XBox Wireless Controller and Sony DualShock/DualSense. 
 
 This combo makes possible building small size yet powerful and extensible remote control machines like RC-vehicles or robots.
 
-PICTURE!!!
+<a href="https://postimg.cc/QBHNP1GQ" target="_blank"><img src="https://i.postimg.cc/QBHNP1GQ/IMG-1619.jpg" alt="IMG-1619"></a>
+<a href="https://postimg.cc/NK0Q9mMB" target="_blank"><img src="https://i.postimg.cc/NK0Q9mMB/IMG-1613.jpg" alt="IMG-1613"></a>
+<a href="https://postimg.cc/640NTpx6" target="_blank"><img src="https://i.postimg.cc/640NTpx6/IMG-1620.jpg" alt="IMG-1620"></a>
 
 YouTube [demo 1](https://www.youtube.com/watch?v=nqUzDYmt8Ac), [demo 2](https://www.youtube.com/watch?v=292cAnSWLGk)
 
 # Using BluepadHub with other controllers
 While this library was initially created for using with Atom-Lite, it is also compatible with other M5Stack controllers based on 
-ESP32-PICO-D4, ESP32-PICO-V3 or ESP32-D0WD chips and even with non-M5Stack boards having Bluetooth Classic support, like ESP32-PICO-MINI02 or ESP-WROOM-32. 
+ESP32-PICO-D4, ESP32-PICO-V3 or ESP32-D0WD chips. 
 
-The main **BluepadHub** class in this library is M5Stack-independent, so it can be used to implement bluetooth remote control for other type of devices even not listed here.
+The main **BluepadHub** class in this library is independent from M5Stack hardware, so it can be used to implement bluetooth remote control with many other boards based on **ESP32** chips supporting **Bluetooth Classic**, like ESP32-PICO-MINI02 or ESP-WROOM-32.
 
 | Supported M5Stack controllers  | Unsupported controllers   |
 | :---           |    :----        |   
@@ -33,17 +35,17 @@ Currently, the only supported servo/motor control unit is M5Stack Atomic Motion 
 
 | Unit  | Status   |
 | :---           |    :----        |   
-| M5Stack Atomic Motion Base   | :white_check_mark: Supported in this library |
-| M5Stack Atomic HDriver Base  | Planned |
-| M5Stack Unit 8Servos   | Planned |
-| M5Stack Unit HBridge   | Planned |
+| [M5Stack Atomic Motion Base](https://docs.m5stack.com/en/atom/Atomic_Motion_Base_v1.2)   | :white_check_mark: Supported in this library |
+| [M5Stack Atomic HDriver Base](https://docs.m5stack.com/en/atom/Atomic%20H-Driver%20Base)  | Planned |
+| [M5Stack Unit 8Servos](https://docs.m5stack.com/en/unit/8Servos%20Unit)  | Planned |
+| [M5Stack Unit HBridge](https://docs.m5stack.com/en/unit/HBridge%20v1.1%20Unit)   | Planned |
 | Other units and devices | Can be impemented with custom code in sketch |
 
 # Using the library
 
 1. Install boards and libraries in Arduino IDE ([wiki](https://github.com/pink0D/M5Bluepad/wiki/Arduino-IDE-configuration))
-2. Start with uploading TestBluepad32 example (link!) to test connection between your gamepad and the controller
-3. Continue to explore AtomicLiteMotion sketch (link) and learn how BluepadHub handles gamepad's input to control motors and servos  
+2. Start with uploading [TestBluepad32](https://github.com/pink0D/M5Bluepad/blob/main/examples/TestBluepad32/TestBluepad32.ino) example to test connection between your gamepad and the controller
+3. Continue to explore [AtomicLiteMotion](https://github.com/pink0D/M5Bluepad/blob/main/examples/AtomicLiteMotion/AtomicLiteMotion.ino) sketch and learn how BluepadHub handles gamepad's input to control motors and servos  
 
 # Contacts
 EMail: [pink0D.github@gmail.com](mailto:pink0d.github@gmail.com)
