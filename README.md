@@ -8,7 +8,7 @@ M5Bluepad library features extension classes for easier use of [Bluepad32](https
 
 [**Unit 8Servos**](https://docs.m5stack.com/en/unit/8Servos%20Unit) can be used to connect additional 8x Servos so up to 14x Servos and 2x DC motors can be attached in total.
 
-Most M5Stack units have LEGO-compatible mounts so if used together with GeekServo motors, this combo makes possible building small size yet powerful and extensible remote control machines like RC-vehicles or robots.
+Most M5Stack units have LEGO-compatible mounts so if used together with GeekServo motors, this combo makes possible building small size yet powerful and extensible remote control machines like cars or robots.
 
 <a href="https://postimg.cc/QBHNP1GQ" target="_blank"><img src="https://i.postimg.cc/QBHNP1GQ/IMG-1619.jpg" alt="IMG-1619"></a>
 <a href="https://postimg.cc/NK0Q9mMB" target="_blank"><img src="https://i.postimg.cc/NK0Q9mMB/IMG-1613.jpg" alt="IMG-1613"></a>
