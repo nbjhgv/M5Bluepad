@@ -15,23 +15,28 @@
 
 #include "BluepadHub.h"
 
-class NeoPixelStatusIndicator : public bluepadhub::StatusIndicator {
-  public:
+namespace bluepadhub {
 
-    NeoPixelStatusIndicator() {};
+  class NeoPixelStatusIndicator : public StatusIndicator {
+    public:
 
-    virtual void begin(int16_t pin = 27);
+      NeoPixelStatusIndicator() {};
 
-    virtual void showStatusPattern();
-    virtual void showEventPattern();
+      virtual void begin(int16_t pin, bool setBluepadHubStatusIndicator = true);
+      virtual void clear();
 
-    void setBrightness(uint8_t _ledBrightness);
+      virtual void showStatusPattern();
+      virtual void showEventPattern();
 
-  private:
-    Adafruit_NeoPixel *pixels = nullptr;
-    void setLedColor(unsigned long color);
+      void setBrightness(uint8_t _ledBrightness);
 
-    uint8_t ledBrightness = 255;
-};  
+    private:
+      Adafruit_NeoPixel *pixels = nullptr;
+      void setLedColor(unsigned long color);
+
+      uint8_t ledBrightness = 255;
+  };  
+  
+}
 
 #endif

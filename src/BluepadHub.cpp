@@ -14,18 +14,50 @@
 // global instance
 bluepadhub::BluepadHub BluepadHub;
 
+
 namespace bluepadhub {
 
-  void BluepadHub::begin(BluepadHubConfig config) {
+  void BluepadHub::setProfile(Profile* _profile) {
+    if (profile != nullptr) {
+      Serial.println("WARNING: profile was already set");
+    }
+    if (_profile != nullptr) {
+      profile = _profile;
+      Serial.println("BluepadHub profile updated");
+    }
+  }
 
-    this->cfg = config;
-    
+  void BluepadHub::setDeepSleep(DeepSleep* _deepSleep) {
+    deepSleep = _deepSleep;
+    if (_deepSleep != nullptr) {
+      Serial.println("BluepadHub deep sleep updated");
+    }
+  }
+  
+  void BluepadHub::begin() {
+
+    Serial.begin(115200);
+
+    if (profile == nullptr) {
+      Serial.println("WARNING: Profile was not set");
+      profile = new Profile(false);
+    }
+
+    profile->setup();
+
+    if (statusIndicator == nullptr) {
+      Serial.println("WARNING: StatusIndicator was not set");
+      statusIndicator = new StatusIndicator();
+    }
+
+    time_idle_wait = profile->idleTimeout * 1000;
+   
     BP32.setup(&onConnectedController, &onDisconnectedController);
     BP32.enableVirtualDevice(false);
 
     auto initialStatusPattern = StatusIndicator::StatusPattern::Idle;
 
-    if (config.forgetBluetoothDevices) {
+    if (profile->forgetBluetoothDevices) {
       BP32.forgetBluetoothKeys();
       BP32.enableNewBluetoothConnections(true);
       initialStatusPattern = StatusIndicator::StatusPattern::Pairing;
@@ -33,77 +65,84 @@ namespace bluepadhub {
       BP32.enableNewBluetoothConnections(false); // pairing disabled by default
     }
 
-    if (indicator != nullptr)
-      indicator->setStatusPattern(initialStatusPattern);
+    statusIndicator->setStatusPattern(initialStatusPattern);
 
-    xTaskCreate(taskStatusIndicator, "StatusIndicator", TASK_STACK_SIZE, NULL, 0, NULL);
+    Serial.println("BluepadHub::begin completed");
   };
 
   void BluepadHub::update() {
     vTaskDelay(1);
 
+    // always update Bluepad32 data
+    bool controllerUpdated = BP32.update();
+
     long time_now = esp_timer_get_time();
 
     // stop motors if controller is not sending updates (possible out of range)
-    if ( (time_controller_update > 0) && (time_now > time_controller_update + cfg.controllerTimeout*1000) ){
+    if ( (time_controller_update > 0) && (time_now > time_controller_update + profile->controllerTimeout*1000) ){
       Serial.println("Controller timeout");
       time_controller_update = 0;
       
-      if (profile != nullptr)
-        profile->failsafe();
-
-      if (cfg.controllerAutoDisconnect) {
-        disconnectController();
-
-        //if (indicator != nullptr)
-        //  indicator->setStatusPattern(StatusIndicator::StatusPattern::Idle);
-      }
+      profile->failsafe();
     }
 
-    // check fault condition
-    if (isFaultFPtr) {
-      if (isFaultFPtr()) {
-        
-        if (indicator != nullptr)
-          indicator->setErrorStatus();  
+    // idle timeout 
+    static bool idle_timeout_handled = false;
 
-      } else {
-        if (indicator != nullptr)
-          indicator->clearErrorStatus();
+    if (time_now > time_idle_wait) {
+
+      if (!idle_timeout_handled) {
+
+        Serial.println("Idle timeout");
+
+        if (profile->controllerAutoDisconnect)
+          disconnectController();
+
+        profile->idleTimer();
+         
+        idle_timeout_handled = true;
       }
+
     }
 
-    // check battery condition
-    if (isLowBatteryFPtr) {
-      if (isLowBatteryFPtr()) {
-        
-        if (profile != nullptr)
-          profile->failsafe();
-
-          if (indicator != nullptr)
-          indicator->setWarningStatus();  
-          
-          return; // no controls in low battery mode
-
-      } else {
-        if (indicator != nullptr)
-          indicator->clearWarningStatus();
-      }
+    // check fault state
+    if (profile->isFaultState()) {  
+         
+      statusIndicator->setErrorStatus();  
+    } else {
+      statusIndicator->clearErrorStatus();
     }
 
-    bool controllerUpdated = BP32.update();
+    // check low battery state
+    if (profile->isLowBatteryState()) {
+      
+      profile->failsafe();
+      statusIndicator->setWarningStatus();  
+      OutputFilter::resetIdleState(); // reset idle state so timeout can be triggered later
+      
+      return; // no controller processing in low battery mode
+
+    } else {
+      statusIndicator->clearWarningStatus();
+    }
+
+    // process controller input and update output
     if (controllerUpdated)
     {
       if (bp32Controller && bp32Controller->isConnected() && bp32Controller->hasData()) {
         if (bp32Controller->isGamepad()) {
 
-          //if (indicator != nullptr)
-          //  indicator->setStatusPattern(StatusIndicator::StatusPattern::Connected);  
+          OutputFilter::resetIdleState();
 
-          if (profile != nullptr)
-            profile->update(bp32Controller); 
+          profile->processBluepadController(bp32Controller); 
 
           time_controller_update = time_now; 
+
+          // reset idle timeout if any outputs where updated
+          if (!OutputFilter::isIdleState()) {
+            time_idle_wait = time_now + profile->idleTimeout * 1000;
+            idle_timeout_handled = false;
+          }
 
         }
         else {
@@ -114,9 +153,10 @@ namespace bluepadhub {
     } else {
       // vTaskDelay(100);
     }
+
   }
 
-  void BluepadHub::onConnectedController(ControllerPtr ctl) {
+  void BluepadHub::onConnectedController(BluepadController* ctl) {
     if (::BluepadHub.bp32Controller == nullptr) {
       ControllerProperties properties = ctl->getProperties();
       Serial.printf("BP32: controller connected: %s, VID=0x%04x, PID=0x%04x\n", ctl->getModelName().c_str(), properties.vendor_id, properties.product_id);
@@ -124,8 +164,7 @@ namespace bluepadhub {
       ::BluepadHub.time_controller_update = 0;
       BP32.enableNewBluetoothConnections(false); // exit pairing mode after connection
       
-      if (::BluepadHub.indicator != nullptr)
-        ::BluepadHub.indicator->setStatusPattern(StatusIndicator::StatusPattern::Connected);
+      ::BluepadHub.statusIndicator->setStatusPattern(StatusIndicator::StatusPattern::Connected);
 
     } else {
       Serial.println("BP32: refusing new connection since another controller is already connected");
@@ -133,7 +172,7 @@ namespace bluepadhub {
     }
   }
 
-  void BluepadHub::onDisconnectedController(ControllerPtr ctl) {
+  void BluepadHub::onDisconnectedController(BluepadController* ctl) {
       if (::BluepadHub.bp32Controller == ctl) {
           Serial.println("BP32: Controller disconnected");
           ::BluepadHub.bp32Controller = nullptr;
@@ -141,8 +180,7 @@ namespace bluepadhub {
           Serial.println("BP32: Unknown controller disconnected");
       }
 
-      if (::BluepadHub.indicator != nullptr)
-        ::BluepadHub.indicator->setStatusPattern(StatusIndicator::StatusPattern::Idle);
+      ::BluepadHub.statusIndicator->setStatusPattern(StatusIndicator::StatusPattern::Idle);
   }
 
   void BluepadHub::disconnectController() {
@@ -151,61 +189,39 @@ namespace bluepadhub {
       bp32Controller = nullptr;
       Serial.println("BP32: Controller disconnected");
 
-      if (indicator != nullptr)
-        indicator->setStatusPattern(StatusIndicator::StatusPattern::Idle);
+      statusIndicator->setStatusPattern(StatusIndicator::StatusPattern::Idle);
+
+      delay(100); // delay to ensure BT communication is completed before power off
     }
   }
 
   void BluepadHub::enablePairing() {
-    Serial.println("BLUETOOTH PAIRING");
+    Serial.println("BluepadHub::enablePairing");
 
     BP32.enableNewBluetoothConnections(true);
     
-    if (indicator != nullptr)
-      indicator->setStatusPattern(StatusIndicator::StatusPattern::Pairing);
+    statusIndicator->setStatusPattern(StatusIndicator::StatusPattern::Pairing);
   }
 
   void BluepadHub::resetPairing() {
-    Serial.println("BLUETOOTH RESET");
+    Serial.println("BluepadHub::resetPairing");
 
     disconnectController();
     BP32.forgetBluetoothKeys();
 
-    if (indicator != nullptr)
-      indicator->setEventPattern(StatusIndicator::EventPattern::Reset);
+    statusIndicator->setEventPattern(StatusIndicator::EventPattern::Reset);
   }
 
-  void BluepadHub::taskStatusIndicator(void *param){
-    while (1) {
-      vTaskDelay(1);
+  void BluepadHub::startDeepSleep() {
 
-      if (::BluepadHub.indicator != nullptr)
-        ::BluepadHub.indicator->showStatusPattern();
-      else
-        vTaskDelay(100);
+    if (isDeepSleepEnabled()) {
+      statusIndicator->stop();
+      disconnectController();      
+      deepSleep->startDeepSleep();    
+    } else {
+      Serial.println("WARNING: deep sleep was not initialized");
     }
-  }
-
-  void BluepadHub::setControlProfile(ControlProfile* _profile) {
-    profile = _profile;
-    if (profile != nullptr)
-      profile->begin();
-  }
-
-  void StatusIndicator::patternDelayMillis(int timeout) {
-    int time_to_wait = timeout - TASK_DEFAULT_DELAY_MILLIS;
-    while (time_to_wait > 0){
-      vTaskDelayMillis(TASK_DEFAULT_DELAY_MILLIS);
-      time_to_wait -= TASK_DEFAULT_DELAY_MILLIS;
-
-      if (eventPattern != EventPattern::None) {
-
-        showEventPattern();
-        eventPattern = EventPattern::None;
-      }
-    }
-  }    
-
+  }  
 }
 
       

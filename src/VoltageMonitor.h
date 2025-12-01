@@ -10,50 +10,55 @@
 #ifndef _VOLTAGE_MONITOR_H_
 #define _VOLTAGE_MONITOR_H_
 
-class VoltageMonitor {
+namespace bluepadhub {
 
-    public:
-        VoltageMonitor() {};
+    class VoltageMonitor {
 
-        // returns battery status and updates if it's too old
-        bool isLowBattery() {
-            update();
-            return lowBattery;
-        };
+        public:
+            VoltageMonitor() {};
 
-        double getVoltage() {
-            return voltage;
-        };
+            // returns battery status and updates if it's too old
+            bool isLowBattery() {
+                update();
+                return lowBattery;
+            };
 
-        // sets cut-off value for a single lithium cell
-        void setMinCellVoltage(double min_cell_voltage) {
-            minCellVoltage = min_cell_voltage;
-        };
+            double getVoltage() {
+                update();
+                return voltage;
+            };
 
-        void setVoltageUpdateInterval(int millis) {
-            update_interval = 1000 * millis;
-        };
+            // sets cut-off value for a single lithium cell
+            void setMinCellVoltage(double min_cell_voltage) {
+                minCellVoltage = min_cell_voltage;
+            };
 
-        void printVoltage(bool _printVoltage) {
-            printVoltageEnabled = _printVoltage;
-        }
-        
-    protected:
-        virtual double readVoltage() {};
-        
-    private:
+            void setVoltageUpdateInterval(int millis) {
+                update_interval = 1000 * millis;
+            };
 
-        void update();
-        bool isLowVoltage(double voltage);
+            void printVoltage(bool _printVoltage) {
+                printVoltageEnabled = _printVoltage;
+            }
+            
+        protected:
+            virtual double readVoltage() {};
+            
+        private:
 
-        double voltage = 0;
-        bool lowBattery = false;
-        double minCellVoltage = 3.4;
+            void update();
+            bool isLowVoltage(double voltage);
 
-        long time_next_update = 0;
-        long update_interval = 500000;
+            double voltage = 0;
+            bool lowBattery = false;
+            double minCellVoltage = 3.4;
 
-        bool printVoltageEnabled = false;
-};
+            long time_next_update = 0;
+            long update_interval = 500000;
+
+            bool printVoltageEnabled = false;
+    };
+
+}
 
 #endif

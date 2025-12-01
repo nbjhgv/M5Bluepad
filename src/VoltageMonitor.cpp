@@ -11,37 +11,43 @@
 #include <esp_timer.h>
 #include <Arduino.h>
 
-void VoltageMonitor::update() {
-  long time_now = esp_timer_get_time();
+namespace bluepadhub {
 
-  if (time_now < time_next_update) 
-    return;
+  void VoltageMonitor::update() {
+    long time_now = esp_timer_get_time();
 
-  time_next_update = time_now + update_interval; // update voltage every 500ms
+    if (time_now < time_next_update) 
+      return;
 
-  voltage = readVoltage();
-  lowBattery = isLowVoltage(voltage);
+    time_next_update = time_now + update_interval; // update voltage every 500ms
 
-  if (printVoltageEnabled) {
-    Serial.println(voltage);
+    voltage = readVoltage();
+    lowBattery = isLowVoltage(voltage);
+
+    if (printVoltageEnabled) {
+      Serial.print("Voltage: ");
+      Serial.print(voltage);
+      Serial.println("V");
+    }
   }
-}
 
-bool VoltageMonitor::isLowVoltage(double voltage) {
+  bool VoltageMonitor::isLowVoltage(double voltage) {
 
-  if (voltage > 0) {
+    if (voltage > 0) {
 
-    if (voltage < 6.4) // never run motors powered from USB port
-      return true; 
+      if (voltage < 6.4) // never run motors powered from USB port
+        return true; 
+      
+      if ( (voltage > 6.4) && (voltage < 8.9) ) // looks like a 2S battery
+        return voltage < 2 * minCellVoltage;
+
+      if ( (voltage > 9.6) && (voltage < 12.9) ) // looks like a 3S battery
+        return voltage < 3 * minCellVoltage;
     
-    if ( (voltage > 6.4) && (voltage < 8.9) ) // looks like a 2S battery
-      return voltage < 2 * minCellVoltage;
+      return true; // unknown battery type, better don't try
 
-    if ( (voltage > 9.6) && (voltage < 12.9) ) // looks like a 3S battery
-      return voltage < 3 * minCellVoltage;
-  
-    return true; // unknown battery type, better don't try
+    } else  
+      return false; // return OK until voltage is read
+  }
 
-  } else  
-    return false; // return OK until voltage is read
 }

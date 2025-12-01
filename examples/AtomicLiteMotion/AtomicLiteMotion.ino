@@ -10,16 +10,39 @@
 #include <BluepadHub.h>
 #include <M5Extensions.h>
 
-NeoPixelStatusIndicator LedRGB;     // RGB Led in Atom Lite
-M5AtomicMotionExt AtomicMotionExt;  // M5AtomicMotion extension
+M5AtomLiteIndicator   AtomLiteIndicator;  // RGB LED status indication
+M5AtomLiteButton      AtomLiteButton;     // button click handler
+M5AtomicMotionExt     AtomicMotionExt;    // M5AtomicMotion extension
 
 
 // this class handles controller input ans sets channel outputs
+class : public bluepadhub::Profile {
 
-class : public bluepadhub::ControlProfile {
+  // this method is implicitly called after controller startup
+  void setup() {
 
-  // set channel parameters here
-  void begin() {
+    // uncomment to adjust controller sensivity
+    //
+    // controllerStickDeadzoneLow = 50;        // 0 = lowest value for stick input
+    // controllerStickDeadzoneHigh = 500;      // 512 = highest value for stick input
+    // controllerTriggerDeadzoneLow = 5;       // 0 = lowest value for trigger input
+    // controllerTriggerDeadzoneHigh = 1000;   // 1024 = highest value for trigger input 
+
+    // actual deadzone values depend on type of controller used
+    // BluePad32 example can be used to analyze raw values sent by controller
+
+    // use Atom Lite RGB LED for status indication
+    AtomLiteIndicator.setBrightness(20);
+    AtomLiteIndicator.begin();
+            
+    while(!AtomicMotionExt.begin()) {
+      Serial.println("Atomic Motion begin failed");
+      AtomLiteIndicator.setErrorStatus();
+      delay(1000);
+    }
+
+    // hold button to enable pairing, continue holding to forget paired devices  
+    AtomLiteButton.begin();
 
     // specify 500..2500us pulse for 360-servo
     // if no pulse range is specified, then default 1000..2000us will be used (180-servo)
@@ -42,7 +65,7 @@ class : public bluepadhub::ControlProfile {
   };
 
   // process updates from controller
-  void update(ControllerPtr ctl) {
+  void processBluepadController(BluepadController* ctl) {
 
     static int motor1_direction = 1;
     static int motor2_direction = 1;
@@ -82,50 +105,16 @@ class : public bluepadhub::ControlProfile {
   };
 
 } TestProfile;
+// global class instance - default Profile constructor sets itself as BluepadHub profile
+
 
 //  Arduino setup function
 void setup() {
-  
-  Serial.begin(115200);
-
-  LedRGB.setBrightness(20);
-  LedRGB.begin();
-
-  BluepadHub.setStatusIndicator(&LedRGB);
-  BluepadHub.setControlProfile(&TestProfile);
   BluepadHub.begin();
-
-  // begin() can be called with config params to adjust controller settings
-  // actual deadzone values depend on type of controller used
-  // BluePad32 example can be used to analyze raw values sent by controller
-
-  /*
-  auto cfg = BluepadHubConfig();
-  cfg.controllerStickDeadzoneLow = 50;        // 0 = lowest value for stick input
-  cfg.controllerStickDeadzoneHigh = 500;      // 512 = highest value for stick input
-  cfg.controllerTriggerDeadzoneLow = 5;       // 0 = lowest value for trigger input
-  cfg.controllerTriggerDeadzoneHigh = 1000;   // 1024 = highest value for trigger input 
-
-  BluepadHub.begin(cfg);
-  */
-
-  while(!AtomicMotionExt.begin()) {
-     Serial.println("Atomic Motion begin failed");
-     LedRGB.setErrorStatus();
-     delay(1000);
-  }
-
-  // hold Atom button for 2.5secs to enable pairing, 5secs to forget paired devices
-  BluetoothPairingButton.begin(2500, 5000);
-
-  Serial.println("Setup finished");
 }
 
 // Arduino loop function
 void loop() {
-
-  // handle inputs and update outputs
   BluepadHub.update();
-
   //no delay here because it's inside BluepadHub.update()
 }

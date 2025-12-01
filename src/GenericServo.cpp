@@ -9,43 +9,51 @@
 
 #include "GenericServo.h"
 
-void GenericServo::setController(GenericServoController* _controller, int _channel) {
-  this->controller = _controller;
-  this->channel = _channel;
-}
+namespace bluepadhub {
 
-void GenericServo::stop() {
-  updateServo(0);
-};
+  void GenericServo::setController(GenericServoController* _controller, int _channel) {
+    this->controller = _controller;
+    this->channel = _channel;
+  }
 
-void GenericServo::setServoPulseRange(uint16_t pulse_min, uint16_t pulse_max) {
+  void GenericServo::stop() {
+    updateServo(0);
+  };
 
-  if (pulse_min < 500)
-    pulse_min = 500;
-  if (pulse_max > 2500)
-    pulse_max = 2500;
+  void GenericServo::setServoPulseRange(uint16_t pulse_min, uint16_t pulse_max) {
 
-  servoPulseMin = pulse_min;
-  servoPulseMax = pulse_max;
-}
+    if (pulse_min < 500)
+      pulse_min = 500;
+    if (pulse_max > 2500)
+      pulse_max = 2500;
 
-void GenericServo::setServoMaxAngle(uint16_t angle_max) {
+    servoPulseMin = pulse_min;
+    servoPulseMax = pulse_max;
+    servoPulseMiddle = (servoPulseMax + servoPulseMin) / 2.0;
+    servoPulseWidth = (servoPulseMax - servoPulseMin) / 2.0;
+  }
 
-  if (angle_max > 180)
-    angle_max = 180;
+  void GenericServo::setServoMaxAngle(uint16_t angle_max) {
 
-  double delta = 500.0 * ( ((double) angle_max) / 90.0 );
+    if (angle_max > 180)
+      angle_max = 180;
 
-  servoPulseMin = 1500 - delta;
-  servoPulseMax = 1500 + delta;
-}
+    double delta = 500.0 * ( ((double) angle_max) / 90.0 );
 
-void GenericServo::updateServo(double normalized_position) {
+    servoPulseMin = 1500 - delta;
+    servoPulseMax = 1500 + delta;
+    servoPulseMiddle = 1500;
+    servoPulseWidth = delta;
+  }
 
-  double mid   = (servoPulseMax + servoPulseMin) / 2.0;
-  double width = (servoPulseMax - servoPulseMin) / 2.0;
+  void GenericServo::updateServo(double normalized_position) {
 
-  double pulse = mid + width * updateValue(normalized_position);
+    double pulse = servoPulseMiddle + servoPulseWidth * updateValue(normalized_position);
 
-  controller->outputServoPulse(channel, pulse);
+    if (controller != nullptr)
+      controller->outputServoPulse(channel, pulse);
+    else
+      Serial.println("WARNING: no ServoController was set for servo");
+  }
+
 }

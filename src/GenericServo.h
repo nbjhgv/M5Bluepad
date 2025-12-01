@@ -10,36 +10,42 @@
 #ifndef _GENERIC_SERVO_H_
 #define _GENERIC_SERVO_H_
 
-#include "ChannelFilter.h"
+#include "BluepadHub.h"
 
-class GenericServoController {
-    public:
-        GenericServoController() {};
-        virtual void outputServoPulse(int channel, uint16_t pulse) {};
-};
+namespace bluepadhub {
 
-class GenericServo : public ChannelFilter {
+    class GenericServoController {
+        public:
+            GenericServoController() {};
+            virtual void outputServoPulse(int channel, uint16_t pulse) {};
+    };
 
-    public:
-        GenericServo() {};
+    class GenericServo : public bluepadhub::OutputFilter {
 
-        void setController(GenericServoController* _controller, int _channel);
-        
-        void stop();
+        public:
+            GenericServo() {};
 
-        void setServoPulseRange(uint16_t pulse_min, uint16_t pulse_max);
-        void setServoMaxAngle(uint16_t angle_max);
+            void setController(GenericServoController* _controller, int _channel);
+            
+            void stop();
 
-        void updateServo(double normalized_position);
+            void setServoPulseRange(uint16_t pulse_min, uint16_t pulse_max);
+            void setServoMaxAngle(uint16_t angle_max);
+
+            void updateServo(double normalized_position);
 
 
-    protected:
-        uint16_t servoPulseMin = 1000;
-        uint16_t servoPulseMax = 2000; 
-        
-    private:
-        GenericServoController* controller;
-        int channel = 0;
-};
+        protected:
+            uint16_t servoPulseMin = 1000;
+            uint16_t servoPulseMax = 2000; 
+            uint16_t servoPulseMiddle = 1500;
+            uint16_t servoPulseWidth = 500;
+            
+        private:
+            GenericServoController* controller = nullptr;
+            int channel = -1;
+    };
+
+}
 
 #endif

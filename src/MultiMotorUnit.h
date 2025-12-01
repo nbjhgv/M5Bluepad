@@ -12,51 +12,55 @@
 
 #include "GenericMotor.h"
 
-template <int numMotors>
-class MultiMotorUnit : private GenericMotorController {
+namespace bluepadhub {
 
-    public:
-        MultiMotorUnit() {        
-            for (int i=0; i<numMotors; i++) {
-                motors[i].setController(this, i); 
-            } 
-            dummyMotor.setController(this, -1); 
-        };
-        
-        void stopMotors() {
-            for (int i=0; i<numMotors; i++) {
-                motors[i].stop(); 
-            } 
-        };
-        
-        GenericMotor* motor(int channel) {
-            if (channel < numMotors)
-                return &motors[channel];
+    template <int numMotors>
+    class MultiMotorUnit : private GenericMotorController {
 
-            return &dummyMotor;
-        };
+        public:
+            MultiMotorUnit() {        
+                for (int i=0; i<numMotors; i++) {
+                    motors[i].setController(this, i); 
+                } 
+                dummyMotor.setController(nullptr, -1); 
+            };
+            
+            void stopMotors() {
+                for (int i=0; i<numMotors; i++) {
+                    motors[i].stop(); 
+                } 
+            };
+            
+            GenericMotor* motor(int channel) {
+                if (channel < numMotors)
+                    return &motors[channel];
 
-        void setMotorLimits(uint8_t channel, double limit_min, double limit_max) {
-            if (channel >= 0 && channel < numMotors) {
-                motors[channel].setMotorLimits(limit_min, limit_max);
-            }
-        };
+                return &dummyMotor;
+            };
 
-        void updateMotorSpeed(uint8_t channel, double normalized_speed) {
-            if (channel >= 0 && channel < numMotors) {
-                motors[channel].updateSpeed(normalized_speed);
-            }
-        };
+            void setMotorLimits(uint8_t channel, double limit_min, double limit_max) {
+                if (channel >= 0 && channel < numMotors) {
+                    motors[channel].setMotorLimits(limit_min, limit_max);
+                }
+            };
 
-        void brakeMotor(uint8_t channel) {
-            if (channel >= 0 && channel < numMotors) {
-                motors[channel].brake();
-            }
-        };
+            void updateMotorSpeed(uint8_t channel, double normalized_speed) {
+                if (channel >= 0 && channel < numMotors) {
+                    motors[channel].updateSpeed(normalized_speed);
+                }
+            };
 
-    private:
-        GenericMotor motors[numMotors];
-        GenericMotor dummyMotor;
-};
+            void brakeMotor(uint8_t channel) {
+                if (channel >= 0 && channel < numMotors) {
+                    motors[channel].brake();
+                }
+            };
+
+        private:
+            GenericMotor motors[numMotors];
+            GenericMotor dummyMotor;
+    };
+
+}
 
 #endif

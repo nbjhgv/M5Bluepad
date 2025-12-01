@@ -13,7 +13,7 @@
 #include "MotorDriverHBridge.h"
 #include "VoltageMonitor.h"
 
-class M5HDriverBaseExt : public MotorDriverHBridge, public VoltageMonitor {
+class M5HDriverBaseExt : public bluepadhub::MotorDriverHBridge, public bluepadhub::VoltageMonitor {
 
     public:
         void begin(int pwm_frequency = 1000);
@@ -26,6 +26,8 @@ class M5HDriverBaseExt : public MotorDriverHBridge, public VoltageMonitor {
         bool fault = false;
 
         virtual double readVoltage();
+
+        void setupPins();
 };
 
 #endif

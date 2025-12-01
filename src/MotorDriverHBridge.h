@@ -13,19 +13,23 @@
 #include <ESP32PWM.h>
 #include "GenericMotor.h"
 
-class MotorDriverHBridge : public GenericMotor, private GenericMotorController {
+namespace bluepadhub {
 
-    public:
-        MotorDriverHBridge() {};
-        
-        void begin(int pwm_pin1, int pwm_pin2, int pwm_frequency);
+    class MotorDriverHBridge : public GenericMotor, private GenericMotorController {
 
-    private:
-        virtual void outputMotorSpeed(int channel, double normalized_speed);
-        virtual void outputMotorBrake(int channel);
+        public:
+            MotorDriverHBridge() {};
+            
+            void begin(int pwm_pin1, int pwm_pin2, int pwm_frequency);
 
-        ESP32PWM pwm_c1;
-        ESP32PWM pwm_c2;        
-};
+        private:
+            virtual void outputMotorSpeed(int channel, double normalized_speed);
+            virtual void outputMotorBrake(int channel);
+
+            ESP32PWM pwm_c1;
+            ESP32PWM pwm_c2;        
+    };
+
+}
 
 #endif

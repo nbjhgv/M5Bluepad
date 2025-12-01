@@ -15,10 +15,11 @@
 #include <BluepadHub.h>
 #include <M5Extensions.h>
 
-NeoPixelStatusIndicator LedRGB;     // RGB Led in Atom Lite
-M5AtomicMotionExt AtomicMotionExt;  // M5AtomicMotion extension
+M5AtomLiteIndicator   AtomLiteIndicator;  // RGB LED status indication
+M5AtomLiteButton      AtomLiteButton;     // button click handler
+M5AtomicMotionExt     AtomicMotionExt;    // M5AtomicMotion extension
 
-class : public bluepadhub::ControlProfile {
+class : public bluepadhub::Profile {
 
   uint8_t FWD_motor = CHANNEL_SERVO_1;
   uint8_t RWD_motor = CHANNEL_SERVO_2;
@@ -27,8 +28,19 @@ class : public bluepadhub::ControlProfile {
 
   double add_steer_start = 0.75;  // rear steering start threshold
 
-  void begin() {
+  void setup() {
 
+    AtomLiteIndicator.setBrightness(20);
+    AtomLiteIndicator.begin();
+            
+    while(!AtomicMotionExt.begin()) {
+      Serial.println("Atomic Motion begin failed");
+      AtomLiteIndicator.setErrorStatus();
+      delay(1000);
+    }
+
+    AtomLiteButton.begin();
+    
     AtomicMotionExt.setServoPulseRange(FWD_motor, 500, 2500);
     AtomicMotionExt.setServoPulseRange(RWD_motor, 500, 2500);
 
@@ -36,7 +48,7 @@ class : public bluepadhub::ControlProfile {
     AtomicMotionExt.setServoMaxAngle(RWD_steer, 10);
   };
 
-  void update(ControllerPtr ctl) {
+  void processBluepadController(BluepadController* ctl) {
 
     // default controls
     double accelerator = normalizeTriggerInput(ctl->throttle());  // R trigger to accelerate
@@ -79,34 +91,14 @@ class : public bluepadhub::ControlProfile {
 
 } MonsterProfile;
 
+
+//  Arduino setup function
 void setup() {
-  
-  Serial.begin(115200);
-  
-  LedRGB.setBrightness(20);
-  LedRGB.begin();
-
-  BluepadHub.setStatusIndicator(&LedRGB);
-  BluepadHub.setControlProfile(&MonsterProfile);
-  BluepadHub.begin(); 
-
-  while(!AtomicMotionExt.begin()) {
-     Serial.println("Atomic Motion begin failed");
-     LedRGB.setErrorStatus();
-     delay(1000);
-  }
-
-  // hold Atom button for 2.5secs to enable pairing, 5secs to forget paired devices
-  BluetoothPairingButton.begin(2500, 5000);
-
-  Serial.println("Setup finished");
+  BluepadHub.begin();
 }
 
 // Arduino loop function
 void loop() {
-
-  // handle inputs and update outputs
   BluepadHub.update();
-
   //no delay here because it's inside BluepadHub.update()
 }

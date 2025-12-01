@@ -9,24 +9,34 @@
 
 #include "GenericMotor.h"
 
-void GenericMotor::setController(GenericMotorController* _controller, int _channel) {
-  this->controller = _controller;
-  this->channel = _channel;
-}
+namespace bluepadhub {
 
-void GenericMotor::stop() {
-  updateSpeed(0);
-};
+  void GenericMotor::setController(GenericMotorController* _controller, int _channel) {
+    this->controller = _controller;
+    this->channel = _channel;
+  }
 
-void GenericMotor::setLimits(double limit_min, double limit_max) {
-  ChannelFilter::setLimits(limit_min, limit_max);
-}
+  void GenericMotor::stop() {
+    updateSpeed(0);
+  };
 
-void GenericMotor::updateSpeed(double normalized_speed) {
-  controller->outputMotorSpeed(channel, updateValue(normalized_speed));
-}
+  void GenericMotor::setLimits(double limit_min, double limit_max) {
+    OutputFilter::setLimits(limit_min, limit_max);
+  }
 
-void GenericMotor::brake() {
-  updateValue(0);
-  controller->outputMotorBrake(channel);
+  void GenericMotor::updateSpeed(double normalized_speed) {
+    if (controller != nullptr)
+      controller->outputMotorSpeed(channel, updateValue(normalized_speed));
+    else
+      Serial.println("WARNING: no MotorController was set for motor");
+  }
+
+  void GenericMotor::brake() {
+    updateValue(0);
+    if (controller != nullptr)
+      controller->outputMotorBrake(channel);
+    else
+      Serial.println("WARNING: no MotorController was set for motor");
+  }
+
 }

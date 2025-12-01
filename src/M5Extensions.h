@@ -22,30 +22,25 @@
 #define CHANNEL_MOTOR_1 0
 #define CHANNEL_MOTOR_2 1
 
-#define SERVO_ATOM_LITE_PORT_A    26
-#define SERVO_ATOMIC_BASE_PORT_B  33
-#define SERVO_ATOMIC_BASE_PORT_C  19
+#define SERVO_ATOM_LITE_PORT_A     26
+#define SERVO_ATOM_LITE_PORT_A1    26
+#define SERVO_ATOM_LITE_PORT_A2    32
+
+#define SERVO_ATOMIC_BASE_PORT_B   33
+#define SERVO_ATOMIC_BASE_PORT_B1  33
+#define SERVO_ATOMIC_BASE_PORT_B2  23
+
+#define SERVO_ATOMIC_BASE_PORT_C   19
+#define SERVO_ATOMIC_BASE_PORT_C1  19
+#define SERVO_ATOMIC_BASE_PORT_C2  22
 
 #include "M5AtomicMotionExt.h"
 #include "M5HDriverBaseExt.h"
 #include "M5Unit8ServosExt.h"
+#include "M5Atom.h"
 #include "ServoPWM.h"
-#include "NeoPixelStatusIndicator.h"
 
-class BluetoothPairingButtonHelper {
-    public:
-        void begin(unsigned long _short_click = 2500, unsigned long _long_click = 5000, int _button_pin = 39);
-        
-        static void button_task(void *param);
+typedef bluepadhub::ServoPWM M5GroveServo;
 
-    private:
-
-        void task();
-        unsigned long short_click;
-        unsigned long long_click;
-        int button_pin;
-};
-
-extern BluetoothPairingButtonHelper BluetoothPairingButton;
 
 #endif

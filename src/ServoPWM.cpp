@@ -9,15 +9,19 @@
 
 #include "ServoPWM.h"
 
-void ServoPWM::begin(int pwm_pin) {
-  attach(pwm_pin, servoPulseMin, servoPulseMax);  
-  writeMicroseconds(1500);
-  setController(this, 0);         
-};
+namespace bluepadhub {
 
-void ServoPWM::outputServoPulse(int channel, uint16_t pulse) {
-  if (!attached())
-    return; // don't update any outputs if it was not initialized
+  void ServoPWM::begin(int pwm_pin) {
+    attach(pwm_pin, servoPulseMin, servoPulseMax);  
+    writeMicroseconds(1500);
+    setController(this, 0);         
+  };
 
-  writeMicroseconds((int) pulse);
+  void ServoPWM::outputServoPulse(int channel, uint16_t pulse) {
+    if (!attached())
+      return; // don't update any outputs if it was not initialized
+
+    writeMicroseconds((int) pulse);
+  }
+
 }

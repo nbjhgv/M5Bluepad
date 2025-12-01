@@ -9,16 +9,35 @@
 
 #include "M5HDriverBaseExt.h"
 
+#include <driver/rtc_io.h>
+#include <driver/gpio.h>
+
 void M5HDriverBaseExt::begin(int pwm_frequency) {
 
-  pinMode(22, INPUT_PULLUP);
-  pinMode(33, INPUT);
+  setupPins();
 
   MotorDriverHBridge::begin(19, 23, pwm_frequency);
 }
 
+void M5HDriverBaseExt::setupPins() {
+  
+  static bool setupDone = false;
+
+  if (!setupDone) {
+    
+    rtc_gpio_hold_dis(GPIO_NUM_33); // needed if this call is made after deep sleep
+
+    pinMode(22, INPUT_PULLUP);
+    pinMode(33, INPUT);
+
+    setupDone = true;
+  }
+}
+
 double M5HDriverBaseExt::readVoltage() {
     
+  setupPins();
+  
   fault = (digitalRead(22) == 0);
 
   return analogReadMilliVolts(33) * 0.01;

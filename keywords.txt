@@ -7,7 +7,7 @@
 #######################################
 
 BluepadHub		KEYWORD1
-ControlProfile		KEYWORD1
+Profile		KEYWORD1
 StatusIndicator		KEYWORD1
 M5AtomicMotionExt		KEYWORD1
 NeoPixelStatusIndicator			KEYWORD1
@@ -19,7 +19,7 @@ setup			KEYWORD2
 loop			KEYWORD2
 update			KEYWORD2
 setStatusIndicator	KEYWORD2
-setControlProfile	KEYWORD2
+setProfile	KEYWORD2
 normalizeTriggerInput	KEYWORD2
 normalizeStickInput	KEYWORD2
 enablePairing	KEYWORD2

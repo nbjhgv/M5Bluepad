@@ -15,7 +15,7 @@
 #include "MultiServoUnit.h"
 #include "MultiMotorUnit.h"
 
-class M5AtomicMotionExt : private M5AtomicMotion, public MultiServoUnit<4>, public MultiMotorUnit<2> {
+class M5AtomicMotionExt : private M5AtomicMotion, public bluepadhub::MultiServoUnit<4>, public bluepadhub::MultiMotorUnit<2> {
   public:
     M5AtomicMotionExt() {};
 

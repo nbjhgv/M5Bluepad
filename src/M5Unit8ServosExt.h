@@ -13,7 +13,7 @@
 #include "MultiServoUnit.h"
 #include "M5Unit8Servos.h"
 
-class M5Unit8ServosExt : public M5Unit8Servos, public MultiServoUnit<8> {
+class M5Unit8ServosExt : public M5Unit8Servos, public bluepadhub::MultiServoUnit<8> {
   public:
     M5Unit8ServosExt() {};
 

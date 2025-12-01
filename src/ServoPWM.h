@@ -13,22 +13,25 @@
 #include <ESP32Servo.h>
 #include "GenericServo.h"
 
-class ServoPWM : public GenericServo, private Servo, private GenericServoController {
+namespace bluepadhub {
 
-    public:
-        //ServoPWM() {};
-        ServoPWM(int pwm_pin) {
-            this->pwm_pin = pwm_pin;
-        };
-        
-        void begin(int pwm_pin);
-        void begin() {
-            begin(pwm_pin);
-        }
+    class ServoPWM : public GenericServo, private Servo, private GenericServoController {
 
-    private:
-        virtual void outputServoPulse(int channel, uint16_t pulse);  
-        int pwm_pin = 0;      
-};
+        public:
+            //ServoPWM() {};
+            ServoPWM(int pwm_pin) {
+                this->pwm_pin = pwm_pin;
+            };
+            
+            void begin(int pwm_pin);
+            void begin() {
+                begin(pwm_pin);
+            }
+
+        private:
+            virtual void outputServoPulse(int channel, uint16_t pulse);  
+            int pwm_pin = 0;      
+    };
+}
 
 #endif

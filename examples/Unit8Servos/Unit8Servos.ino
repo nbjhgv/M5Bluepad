@@ -10,17 +10,46 @@
 #include <BluepadHub.h>
 #include <M5Extensions.h>
 
-NeoPixelStatusIndicator LedRGB;     // RGB Led in Atom Lite
-M5AtomicMotionExt AtomicMotionExt;  // M5AtomicMotion extension
-M5Unit8ServosExt Unit8ServosExt;    // Unit8Servos extension
+M5AtomLiteIndicator   AtomLiteIndicator;  // RGB LED status indication
+M5AtomLiteButton      AtomLiteButton;     // button click handler
+M5AtomicMotionExt     AtomicMotionExt;    // M5AtomicMotion extension
+M5Unit8ServosExt      Unit8ServosExt;     // M5Unit8Servos extension
 
 
 // this class handles controller input ans sets channel outputs
+class : public bluepadhub::Profile {
 
-class : public bluepadhub::ControlProfile {
+  // this method is implicitly called after controller startup
+  void setup() {
 
-  // set channel parameters here
-  void begin() {
+    // uncomment to adjust controller sensivity
+    //
+    // controllerStickDeadzoneLow = 50;        // 0 = lowest value for stick input
+    // controllerStickDeadzoneHigh = 500;      // 512 = highest value for stick input
+    // controllerTriggerDeadzoneLow = 5;       // 0 = lowest value for trigger input
+    // controllerTriggerDeadzoneHigh = 1000;   // 1024 = highest value for trigger input 
+
+    // actual deadzone values depend on type of controller used
+    // BluePad32 example can be used to analyze raw values sent by controller
+
+    // use Atom Lite RGB LED for status indication
+    AtomLiteIndicator.setBrightness(20);
+    AtomLiteIndicator.begin();
+            
+    while(!AtomicMotionExt.begin()) {
+      Serial.println("Atomic Motion begin failed");
+      AtomLiteIndicator.setErrorStatus();
+      delay(1000);
+    }
+
+    while(!Unit8ServosExt.begin()) {
+      Serial.println("Unit 8Servos begin failed");
+      AtomLiteIndicator.setErrorStatus();
+      delay(1000);
+    }    
+
+    // hold button to enable pairing, continue holding to forget paired devices  
+    AtomLiteButton.begin();
 
     // by default, M5Unit8ServosExt.begin() sets all pins to servo mode
     // it's still posible to change mode with setOnePinMode() and use pin as Input/Output/ADC/NeoPixel/PWM
@@ -40,7 +69,7 @@ class : public bluepadhub::ControlProfile {
   };
 
   // process updates from controller
-  void update(ControllerPtr ctl) {
+  void processBluepadController(BluepadController* ctl) {
 
     static int motor1_direction = 1;
     static int motor2_direction = 1;
@@ -58,12 +87,12 @@ class : public bluepadhub::ControlProfile {
     // press sticks to select servo channels
     if (wasClicked(ctl->thumbL())) {
       active_channel_atomic_motion = (active_channel_atomic_motion+1) % 4;
-      LedRGB.setEventPattern(bluepadhub::StatusIndicator::EventPattern::ProfileSelect);
+      AtomLiteIndicator.setEventPattern(bluepadhub::StatusIndicator::EventPattern::ProfileSelect);
     }
 
     if (wasClicked(ctl->thumbR())) {
       active_channel_unit_8servos = (active_channel_unit_8servos+1) % 8;
-      LedRGB.setEventPattern(bluepadhub::StatusIndicator::EventPattern::ProfileSelect);
+      AtomLiteIndicator.setEventPattern(bluepadhub::StatusIndicator::EventPattern::ProfileSelect);
     }
 
     // updateServo/updateMotor methods set new values for servo/motor channels output with anti-jitter filtering
@@ -95,42 +124,16 @@ class : public bluepadhub::ControlProfile {
   };
 
 } TestProfile;
+// global class instance - default Profile constructor sets itself as BluepadHub profile
+
 
 //  Arduino setup function
 void setup() {
-  
-  Serial.begin(115200);
-
-  LedRGB.setBrightness(20);
-  LedRGB.begin();
-
-  BluepadHub.setStatusIndicator(&LedRGB);
-  BluepadHub.setControlProfile(&TestProfile);
   BluepadHub.begin();
-  
-  while(!AtomicMotionExt.begin()) {
-     Serial.println("Atomic Motion begin failed");
-     LedRGB.setErrorStatus();
-     delay(1000);
-  }
-
-  while(!Unit8ServosExt.begin()) {
-     Serial.println("Unit 8Servos begin failed");
-     LedRGB.setErrorStatus();
-     delay(1000);
-  }
-
-  // hold Atom button for 2.5secs to enable pairing, 5secs to forget paired devices
-  BluetoothPairingButton.begin(2500, 5000);
-
-  Serial.println("Setup finished");
 }
 
 // Arduino loop function
 void loop() {
-
-  // handle inputs and update outputs
   BluepadHub.update();
-
   //no delay here because it's inside BluepadHub.update()
 }

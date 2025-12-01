@@ -9,31 +9,35 @@
 
 #include "MotorDriverHBridge.h"
 
-void MotorDriverHBridge::begin(int pwm_pin1, int pwm_pin2, int pwm_frequency) {
-  pwm_c1.attachPin(pwm_pin1, pwm_frequency);
-  pwm_c2.attachPin(pwm_pin2, pwm_frequency);
-  pwm_c1.write(0);
-  pwm_c2.write(0);
+namespace bluepadhub {
 
-  setController(this, 0); 
-}
-
-void MotorDriverHBridge::outputMotorSpeed(int channel, double normalized_speed) {
-  if (isZeroValue(normalized_speed)) {
+  void MotorDriverHBridge::begin(int pwm_pin1, int pwm_pin2, int pwm_frequency) {
+    pwm_c1.attachPin(pwm_pin1, pwm_frequency);
+    pwm_c2.attachPin(pwm_pin2, pwm_frequency);
     pwm_c1.write(0);
     pwm_c2.write(0);
-  }
-  else if (normalized_speed > 0) {
-    pwm_c1.writeScaled(normalized_speed);
-    pwm_c2.write(0);
-  }
-  else if (normalized_speed < 0) {
-    pwm_c1.write(0);
-    pwm_c2.writeScaled(-normalized_speed);
-  }
-}
 
-void MotorDriverHBridge::outputMotorBrake(int channel) {
-  pwm_c1.writeScaled(1.0);
-  pwm_c2.writeScaled(1.0);
+    setController(this, 0); 
+  }
+
+  void MotorDriverHBridge::outputMotorSpeed(int channel, double normalized_speed) {
+    if (isZeroValue(normalized_speed)) {
+      pwm_c1.write(0);
+      pwm_c2.write(0);
+    }
+    else if (normalized_speed > 0) {
+      pwm_c1.writeScaled(normalized_speed);
+      pwm_c2.write(0);
+    }
+    else if (normalized_speed < 0) {
+      pwm_c1.write(0);
+      pwm_c2.writeScaled(-normalized_speed);
+    }
+  }
+
+  void MotorDriverHBridge::outputMotorBrake(int channel) {
+    pwm_c1.writeScaled(1.0);
+    pwm_c2.writeScaled(1.0);
+  }
+
 }

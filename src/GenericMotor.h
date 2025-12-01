@@ -10,37 +10,41 @@
 #ifndef _GENERIC_MOTOR_H_
 #define _GENERIC_MOTOR_H_
 
-#include "ChannelFilter.h"
+#include "BluepadHub.h"
 
-class GenericMotorController {
-    public:
-        GenericMotorController() {};
+namespace bluepadhub {
 
-        virtual void outputMotorSpeed(int channel, double normalized_speed) {};
+    class GenericMotorController {
+        public:
+            GenericMotorController() {};
 
-        virtual void outputMotorBrake(int channel) { 
-            outputMotorSpeed(channel, 0); // default implementation is setting speed to zero
-        };
-};
+            virtual void outputMotorSpeed(int channel, double normalized_speed) {};
 
-class GenericMotor : public ChannelFilter {
+            virtual void outputMotorBrake(int channel) { 
+                outputMotorSpeed(channel, 0); // default implementation is setting speed to zero
+            };
+    };
 
-    public:
-        GenericMotor() {};
+    class GenericMotor : public bluepadhub::OutputFilter {
 
-        void setController(GenericMotorController* _controller, int _channel);
-        
-        void stop();
+        public:
+            GenericMotor() {};
 
-        void setLimits(double limit_min, double limit_max);
-        
-        void updateSpeed(double normalized_speed);
-        void brake();
+            void setController(GenericMotorController* _controller, int _channel);
+            
+            void stop();
 
-        
-    private:
-        GenericMotorController* controller;
-        int channel = 0;
-};
+            void setLimits(double limit_min, double limit_max);
+            
+            void updateSpeed(double normalized_speed);
+            void brake();
+
+            
+        private:
+            GenericMotorController* controller = nullptr;
+            int channel = -1;
+    };
+
+}
 
 #endif
